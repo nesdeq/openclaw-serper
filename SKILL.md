@@ -1,8 +1,7 @@
 ---
 name: serper
-version: 3.0.1
 description: Google search via Serper API with full page content extraction. Fast API lookup + concurrent page scraping (3s timeout). One well-crafted query returns rich results — avoid multiple calls. Two modes, explicit locale control. API key via .env.
-tags: [search, web-search, serper, google, content-extraction]
+metadata: {"version": "3.0.1", "tags": ["search", "web-search", "serper", "google", "content-extraction"]}
 ---
 
 # Serper
