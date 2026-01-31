@@ -109,25 +109,23 @@ python3 scripts/search.py -q "meilleur smartphone 2026" --gl fr --hl fr
 
 ## Output Format
 
-The output is **clean JSON only** — no log lines, no markers. Two types of JSON objects are printed, one per line:
+The output is a **streamed JSON array** — elements print one at a time as each page is scraped:
 
-**First line — search results** (printed immediately after API call):
 ```json
-{"query": "...", "mode": "default", "locale": {"gl": "world", "hl": "en"}, "results": [{"title": "...", "url": "...", "source": "web"}, ...]}
+[{"query": "...", "mode": "default", "locale": {"gl": "world", "hl": "en"}, "results": [{"title": "...", "url": "...", "source": "web"}, ...]}
+,{"title": "...", "url": "...", "source": "web", "content": "Full extracted page text..."}
+,{"title": "...", "url": "...", "source": "news", "date": "2 hours ago", "content": "Full article text..."}
+]
 ```
 
-**Following lines — one per page** (printed as each page is scraped):
-```json
-{"title": "...", "url": "...", "source": "web", "content": "Full extracted page text..."}
-{"title": "...", "url": "...", "source": "news", "date": "2 hours ago", "content": "Full article text..."}
-```
+The first element is search metadata. Each following element contains a result with full extracted content.
 
 Result fields:
 - `title` — page title
 - `url` — source URL
 - `source` — `"web"`, `"news"`, or `"knowledge_graph"`
 - `content` — full extracted page text (falls back to search snippet if extraction fails)
-- `date` — only present for news results
+- `date` — present when available (news results always, web results sometimes)
 
 ---
 

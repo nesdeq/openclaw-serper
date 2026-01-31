@@ -14,7 +14,8 @@ Google search via Serper API with full page content extraction using trafilatura
 - **Two Search Modes** — All-time general search or time-sensitive news/recent results
 - **Knowledge Graph** — Includes Google Knowledge Graph data when available
 - **Locale Control** — Country and language targeting via `--gl` and `--hl` flags
-- **Streaming Output** — Results stream as JSON lines, one per page, as each is scraped
+- **Concurrent Fetching** — All pages fetched in parallel via thread pool for fast results
+- **Streaming Output** — Results stream as a JSON array, one element per page, as each is scraped
 - **Zero Heavy Dependencies** — Uses Python stdlib for HTTP; only requires trafilatura
 
 ---
@@ -100,27 +101,16 @@ python3 scripts/search.py -q "meilleur smartphone 2026" --gl fr --hl fr
 
 ## Output Format
 
-Clean JSON only, one object per line. Two types:
-
-**First line — search metadata:**
+Streamed JSON array — elements print one at a time as each page is scraped:
 
 ```json
-{
-  "query": "how does HTTPS work",
-  "mode": "default",
-  "locale": {"gl": "world", "hl": "en"},
-  "results": [
-    {"title": "...", "url": "...", "source": "web"}
-  ]
-}
+[{"query": "how does HTTPS work", "mode": "default", "locale": {"gl": "world", "hl": "en"}, "results": [{"title": "...", "url": "...", "source": "web"}]}
+,{"title": "Page Title", "url": "https://example.com", "source": "web", "content": "Full extracted page text..."}
+,{"title": "News Article", "url": "https://news.com", "source": "news", "date": "2 hours ago", "content": "Full article text..."}
+]
 ```
 
-**Following lines — one per page with extracted content:**
-
-```json
-{"title": "Page Title", "url": "https://example.com", "source": "web", "content": "Full extracted page text..."}
-{"title": "News Article", "url": "https://news.com", "source": "news", "date": "2 hours ago", "content": "Full article text..."}
-```
+The first element is search metadata. Each following element contains a result with full extracted content.
 
 ### Result Fields
 
@@ -130,7 +120,7 @@ Clean JSON only, one object per line. Two types:
 | `url` | Source URL |
 | `source` | `"web"`, `"news"`, or `"knowledge_graph"` |
 | `content` | Full extracted page text (falls back to snippet if extraction fails) |
-| `date` | Only present for news results |
+| `date` | Present when available (news results always, web results sometimes) |
 
 ---
 
@@ -154,7 +144,7 @@ Clean JSON only, one object per line. Two types:
 > Some sites block scraping. When trafilatura can't extract content, the skill falls back to the search snippet.
 
 **Q: Does this work on Windows?**
-> The content extraction timeout uses `SIGALRM`, which is Linux/macOS only. The script will work on Windows but without per-page timeout protection.
+> Yes. The script uses thread-based timeouts and works on all platforms.
 
 **Error: "trafilatura is required but not installed"**
 ```bash
