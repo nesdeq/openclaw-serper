@@ -183,4 +183,5 @@ MIT
 ## Links
 
 - [Serper](https://serper.dev) — Google Search API (2,500 free queries)
+- [ClawHub](https://www.clawhub.ai/nesdeq/serper) — Skill page
 - [GitHub](https://github.com/nesdeq/openclaw-serper) — Source code & issues
