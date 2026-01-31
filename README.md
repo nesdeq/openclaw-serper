@@ -1,38 +1,62 @@
 # Serper
 
-Google search via Serper API with full page content extraction using trafilatura. Not just snippets — fetches and reads the actual web pages to extract clean full-text content.
+Google search via Serper API with full page content extraction. Fast API lookup, then concurrent page scraping (3s timeout per page) via trafilatura. Not just snippets — full article text from every result.
 
 [![GitHub](https://img.shields.io/badge/GitHub-openclaw--serper-blue)](https://github.com/nesdeq/openclaw-serper)
-[![Version](https://img.shields.io/badge/version-3.0.0-green)](https://github.com/nesdeq/openclaw-serper)
+[![Version](https://img.shields.io/badge/version-3.0.1-green)](https://github.com/nesdeq/openclaw-serper)
 [![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/nesdeq/openclaw-serper/blob/main/LICENSE)
 
 ---
 
-## Features
+## How It Works
 
-- **Full Page Content** — Extracts clean readable text from every result using trafilatura
-- **Two Search Modes** — All-time general search or time-sensitive news/recent results
-- **Knowledge Graph** — Includes Google Knowledge Graph data when available
-- **Locale Control** — Country and language targeting via `--gl` and `--hl` flags
-- **Concurrent Fetching** — All pages fetched in parallel via thread pool for fast results
-- **Streaming Output** — Results stream as a JSON array, one element per page, as each is scraped
-- **Zero Heavy Dependencies** — Uses Python stdlib for HTTP; only requires trafilatura
+1. **Serper API call** — fast Google search, returns result URLs instantly
+2. **Concurrent page scraping** — all result pages fetched and extracted in parallel via trafilatura (3s timeout per page)
+3. **Streamed output** — results print one at a time as each page finishes
+
+One query returns 5 results (default mode) or up to 6 (current mode), each with full page content.
 
 ---
 
-## Quick Start
+## Install
+
+### 1. Clone
 
 ```bash
-# 1. Clone into your OpenClaw skills directory
 git clone https://github.com/nesdeq/openclaw-serper.git ~/.openclaw/skills/serper
+```
 
-# 2. Install trafilatura
-pip install trafilatura
+### 2. Install trafilatura
 
-# 3. Add your API key (get one free at https://serper.dev — 2,500 queries)
-echo 'SERPER_API_KEY="your-key"' >> ~/.openclaw/skills/serper/.env
+trafilatura is the only dependency. It must be installed for the same Python that will run the script — install as your user, not with sudo.
 
-# 4. Done. Search.
+```bash
+# Install for your user
+pip install --user trafilatura
+
+# Or if you use pip3 explicitly
+pip3 install --user trafilatura
+```
+
+If `python3` on your system points to a Homebrew/pyenv/asdf-managed Python, `pip install trafilatura` (without `--user`) is fine — those are already user-scoped. The `--user` flag matters on system Python (e.g. Debian/Ubuntu) where global installs require root.
+
+**Verify it's importable by the Python that will run the script:**
+
+```bash
+python3 -c "import trafilatura; print('ok')"
+```
+
+### 3. API key
+
+Get a free key at [serper.dev](https://serper.dev) (2,500 queries free). Add `SERPER_API_KEY` (or `SERP_API_KEY`) to `~/.openclaw/.env` or `~/.openclaw/skills/serper/.env`:
+
+```bash
+echo 'SERPER_API_KEY="your-key"' >> ~/.openclaw/.env
+```
+
+### 4. Search
+
+```bash
 python3 ~/.openclaw/skills/serper/scripts/search.py -q "how does HTTPS work"
 ```
 
@@ -148,12 +172,14 @@ The first element is search metadata. Each following element contains a result w
 
 **Error: "trafilatura is required but not installed"**
 ```bash
-pip install trafilatura
+pip install --user trafilatura
+# Then verify: python3 -c "import trafilatura; print('ok')"
 ```
 
 **Error: "Missing Serper API key"**
 ```bash
-echo 'SERPER_API_KEY="your-key"' >> ~/.openclaw/skills/serper/.env
+# Add to ~/.openclaw/.env or ~/.openclaw/skills/serper/.env
+echo 'SERPER_API_KEY="your-key"' >> ~/.openclaw/.env
 ```
 
 **Error: "Invalid or expired API key" (401)**
